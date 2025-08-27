@@ -112,7 +112,7 @@ function importFromJsonFile(event) {
 
 // Syncing with server simulation
 
-async function fetchServerQuotes() {
+async function fetchQuotesFromServer() {
   // Simulated server quotes
   const serverQuotes = [
     { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
