@@ -69,3 +69,54 @@ function addQuote() {
   document.getElementById('newQuoteText').value = '';
   document.getElementById('newQuoteCategory').value = '';
 }
+
+const syncStatus = document.getElementById('syncStatus');
+
+async function fetchServerQuotes() {
+  // Simulated server quotes
+  const serverQuotes = [
+    { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
+    { text: "Inspiration exists, but it has to find you working.", category: "Inspiration" },
+    { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+    { text: "New server quote added!", category: "Motivation" }
+  ];
+  return serverQuotes;
+}
+
+async function syncWithServer() {
+  try {
+    const serverQuotes = await fetchServerQuotes();
+
+    if (JSON.stringify(quotes) !== JSON.stringify(serverQuotes)) {
+      quotes = serverQuotes;
+      saveQuotes();
+      populateCategories();
+      filterQuotes();
+      syncStatus.textContent = 'Data synced with server. Local data updated.';
+    } else {
+      syncStatus.textContent = 'Data is up to date with server.';
+    }
+  } catch (error) {
+    syncStatus.textContent = 'Error syncing data with server.';
+    console.error(error);
+  }
+
+  setTimeout(() => {
+    syncStatus.textContent = '';
+  }, 5000);
+}
+
+// Start periodic sync every 30 seconds
+setInterval(syncWithServer, 30000);
+
+// Initial sync on load
+syncWithServer();
+
+// Optional manual sync button
+const manualSyncBtn = document.getElementById('manualSyncBtn');
+if (manualSyncBtn) {
+  manualSyncBtn.addEventListener('click', () => {
+    syncWithServer();
+  });
+}
+
