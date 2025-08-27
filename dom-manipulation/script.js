@@ -119,4 +119,60 @@ if (manualSyncBtn) {
     syncWithServer();
   });
 }
+  
+// Element to show sync status messages (make sure you have <div id="syncStatus"></div> in your HTML)
+const syncStatus = document.getElementById('syncStatus');
+
+// Simulate fetching quotes from a server (replace with real API call if available)
+async function fetchServerQuotes() {
+  // This is a mock server response — replace or extend as needed
+  const serverQuotes = [
+    { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
+    { text: "Inspiration exists, but it has to find you working.", category: "Inspiration" },
+    { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+    { text: "New server quote added!", category: "Motivation" }
+  ];
+  // Simulate network delay (optional)
+  return new Promise((resolve) => setTimeout(() => resolve(serverQuotes), 1000));
+}
+
+// Sync local quotes with server data, server takes precedence on conflict
+async function syncWithServer() {
+  try {
+    const serverQuotes = await fetchServerQuotes();
+
+    // Simple deep comparison via JSON.stringify
+    if (JSON.stringify(quotes) !== JSON.stringify(serverQuotes)) {
+      quotes = serverQuotes;
+      saveQuotes();
+      populateCategories();
+      filterQuotes();
+      syncStatus.textContent = 'Data synced with server. Local data updated.';
+    } else {
+      syncStatus.textContent = 'Data is up to date with server.';
+    }
+  } catch (error) {
+    syncStatus.textContent = 'Error syncing data with server.';
+    console.error(error);
+  }
+
+  // Clear message after 5 seconds
+  setTimeout(() => {
+    syncStatus.textContent = '';
+  }, 5000);
+}
+
+// Start automatic syncing every 30 seconds
+setInterval(syncWithServer, 30000);
+
+// Sync once immediately on page load
+syncWithServer();
+
+// Optional: manual sync button support
+const manualSyncBtn = document.getElementById('manualSyncBtn');
+if (manualSyncBtn) {
+  manualSyncBtn.addEventListener('click', () => {
+    syncWithServer();
+  });
+}
 
