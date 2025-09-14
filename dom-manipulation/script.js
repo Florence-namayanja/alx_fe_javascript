@@ -110,22 +110,22 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Syncing with server simulation
+// --- Syncing with server (Mock API: JSONPlaceholder) ---
 
 async function fetchQuotesFromServer() {
-  // Simulated server quotes
-  const serverQuotes = [
-    { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
-    { text: "Inspiration exists, but it has to find you working.", category: "Inspiration" },
-    { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-    { text: "New server quote added!", category: "Motivation" }
-  ];
-  return new Promise(resolve => setTimeout(() => resolve(serverQuotes), 1000));
+  const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+  const data = await response.json();
+
+  // Map first 5 posts into "quotes"
+  return data.slice(0, 5).map(post => ({
+    text: post.title,
+    category: "Server"
+  }));
 }
 
 async function syncWithServer() {
   try {
-    const serverQuotes = await fetchServerQuotes();
+    const serverQuotes = await fetchQuotesFromServer();
 
     if (JSON.stringify(quotes) !== JSON.stringify(serverQuotes)) {
       quotes = serverQuotes;
@@ -146,18 +146,19 @@ async function syncWithServer() {
   }, 5000);
 }
 
-// Event Listeners
+// --- Event Listeners ---
 newQuoteBtn.addEventListener('click', showRandomQuote);
 document.querySelector('button[onclick="addQuote()"]').addEventListener('click', addQuote);
 categoryFilter.addEventListener('change', filterQuotes);
 document.getElementById('exportBtn').addEventListener('click', exportToJsonFile);
 document.getElementById('importFile').addEventListener('change', importFromJsonFile);
+
 const manualSyncBtn = document.getElementById('manualSyncBtn');
 if (manualSyncBtn) {
   manualSyncBtn.addEventListener('click', syncWithServer);
 }
 
-// Initial population and display
+// --- Initial load ---
 populateCategories();
 filterQuotes();
 syncWithServer();
